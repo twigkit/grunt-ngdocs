@@ -747,10 +747,10 @@ Doc.prototype = {
           dom.text('as element:');
           dom.code(function() {
             dom.text('<');
-            dom.text(dashCase(self.shortName));
+            dom.text(colonDashCase(self.shortName));
             renderParams('\n       ', '="', '"');
             dom.text('>\n</');
-            dom.text(dashCase(self.shortName));
+            dom.text(colonDashCase(self.shortName));
             dom.text('>');
           });
         }
@@ -1376,6 +1376,18 @@ var DASH_CASE_REGEXP = /[A-Z]/g;
 function dashCase(name){
   return name.replace(DASH_CASE_REGEXP, function(letter, pos) {
     return (pos ? '-' : '') + letter.toLowerCase();
+  });
+}
+
+function colonDashCase(name){
+  var dashed = false;
+  return name.replace(DASH_CASE_REGEXP, function(letter, pos) {
+    if(!dashed){
+      dashed = true;
+      return (pos ? ':' : '') + letter.toLowerCase();
+    } else {
+      return (pos ? '-' : '') + letter.toLowerCase();
+    }
   });
 }
 //////////////////////////////////////////////////////////
