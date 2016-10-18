@@ -1031,7 +1031,11 @@ function title(doc) {
     // makeTitle('Foo', 'directive', 'module', 'ng') ->
     //    Foo is a directive in module ng
     return function () {
-      this.tag('code', name);
+      if(type == 'directive'){
+        this.tag('code', colonDashCase(name));
+      } else {
+        this.tag('code', name);
+      }
       this.tag('div', function () {
         this.tag('span', {class: 'hint'}, function () {
           if (type && component) {
