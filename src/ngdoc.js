@@ -783,9 +783,13 @@ Doc.prototype = {
 
     self.method_properties_events(dom);
 
+    function camelCase(myString){
+      return myString.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+    }
+
     function renderParams(prefix, infix, suffix, skipSelf) {
       (self.param||[]).forEach(function(param) {
-        var skip = skipSelf && (param.name == self.shortName || param.name.indexOf(self.shortName + '|') == 0);
+        var skip = skipSelf && (param.name == self.shortName || param.name.indexOf(self.shortName + '|') == 0 || camelCase(param.name) == camelCase(self.shortName));
         if (!skip) {
           dom.text(prefix);
           dom.text(param.optional ? '[' : '');
