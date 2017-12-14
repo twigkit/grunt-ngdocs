@@ -9,6 +9,7 @@
 var reader = require('../src/reader.js'),
     ngdoc = require('../src/ngdoc.js'),
     path = require('path'),
+    upath = require('upath'),
     vm = require('vm');
 
 var repohosts = [
@@ -110,8 +111,9 @@ module.exports = function (grunt) {
             grunt.file.write(file, doc.html());
         });
 
+        // KW - Create directives.json - START
         var directives = [];
-
+        
         reader.docs.forEach(function (doc) {
             if (doc.ngdoc == 'directive' && typeof doc.restrict.indexOf === "function" && doc.restrict.indexOf('E') != -1) {
                 var directive = {
@@ -128,6 +130,7 @@ module.exports = function (grunt) {
         });
 
         grunt.file.write('dist/directives.json', JSON.stringify(directives));
+        // KW - Create directives.json - END
 
         ngdoc.checkBrokenLinks(reader.docs, setup.apis, options);
 
@@ -153,21 +156,19 @@ module.exports = function (grunt) {
         var pkg = grunt.config('pkg');
         try {
             pkg = grunt.file.readJSON('package.json');
-        } catch (e) {
-        }
+        } catch (e) { }
         return pkg || {};
     }
 
     function makeLinkFn(tmpl, values) {
-        if (!tmpl || tmpl === true) {
-            return false;
-        }
-        if (/\{\{\s*sha\s*\}\}/.test(tmpl)) {
+        if (!tmpl || tmpl === true) { return false; }
+        if (/\{\{\s*(sha|rev)\s*\}\}/.test(tmpl)) {
             var shell = require('shelljs');
-            var sha = shell.exec('git rev-parse HEAD', {silent: true});
-            values.sha = ('' + sha.output).slice(0, 7);
+            var sha = shell.exec('git rev-parse HEAD', { silent: true });
+            values.rev = '' + sha.output;
+            values.sha = values.rev.slice(0, 7);
         }
-        tmpl = _.template(tmpl, undefined, {'interpolate': /\{\{(.+?)\}\}/g});
+        tmpl = _.template(tmpl, undefined, { 'interpolate': /\{\{(.+?)\}\}/g });
         return function (file, line, codeline) {
             values.file = file;
             values.line = line;
@@ -179,7 +180,7 @@ module.exports = function (grunt) {
     }
 
     function prepareLinks(pkg, options) {
-        var values = {version: pkg.version || 'master'};
+        var values = { version: pkg.version || 'master' };
         var url = (pkg.repository || {}).url;
 
         if (url && options.sourceLink === true || options.sourceEdit === true) {
@@ -215,12 +216,10 @@ module.exports = function (grunt) {
             vm.runInNewContext(data, context, file);
             setup = context.NG_DOCS;
             // keep only pages from other build tasks
-            setup.pages = _.filter(setup.pages, function (p) {
-                return p.section !== section;
-            });
+            setup.pages = _.filter(setup.pages, function (p) { return p.section !== section; });
         } else {
             // build clean dest
-            setup = {sections: {}, pages: [], apis: {}};
+            setup = { sections: {}, pages: [], apis: {} };
             copyTemplates(options.dest);
         }
         setup.__file = file;
@@ -248,7 +247,7 @@ module.exports = function (grunt) {
 
         // create index.html
         content = grunt.file.read(template);
-        content = grunt.template.process(content, {data: data});
+        content = grunt.template.process(content, { data: data });
         grunt.file.write(path.resolve(options.dest, 'index.html'), content);
 
         // create setup file
@@ -256,15 +255,13 @@ module.exports = function (grunt) {
         setup.editExample = options.editExample;
         setup.startPage = options.startPage;
         setup.discussions = options.discussions;
-        setup.scripts = _.map(options.scripts, function (url) {
-            return path.basename(url);
-        });
+        setup.scripts = _.map(options.scripts, function (url) { return path.basename(url); });
         grunt.file.write(setup.__file, 'NG_DOCS=' + JSON.stringify(setup, replacer, 2) + ';');
     }
 
 
     function copyTemplates(dest) {
-        grunt.file.expandMapping(['**/*', '!**/*.tmpl'], dest, {cwd: templates}).forEach(function (f) {
+        grunt.file.expandMapping(['**/*', '!**/*.tmpl'], dest, { cwd: templates }).forEach(function (f) {
             var src = f.src[0],
                 dest = f.dest;
             if (grunt.file.isDir(src)) {
@@ -284,18 +281,18 @@ module.exports = function (grunt) {
             // Get the partial content and replace the closing script tags with a placeholder
             var partialContent = grunt.file.read(path.join(indexFolder, partial))
                 .replace(/<\/script>/g, '<___/script___>');
-            return '<script type="text/ng-template" id="' + partial + '">' + partialContent + '<' + '/script>';
+            return '<script type="text/ng-template" id="' + upath.normalize(partial) + '">' + partialContent + '<' + '/script>';
         }).join('');
         // During page initialization replace the placeholder back to the closing script tag
         // @see https://github.com/angular/angular.js/issues/2820
         html += '<script>(' + (function () {
-                var scripts = document.getElementsByTagName("script");
-                for (var i = 0; i < scripts.length; i++) {
-                    if (scripts[i].type === 'text/ng-template') {
-                        scripts[i].innerHTML = scripts[i].innerHTML.replace(/<___\/script___>/g, '</' + 'script>');
-                    }
+            var scripts = document.getElementsByTagName("script");
+            for (var i = 0; i < scripts.length; i++) {
+                if (scripts[i].type === 'text/ng-template') {
+                    scripts[i].innerHTML = scripts[i].innerHTML.replace(/<___\/script___>/g, '</' + 'script>');
                 }
-            }) + '())</script>';
+            }
+        }) + '())</script>';
         // Inject the html into the ngdoc file
         var patchedIndex = grunt.file.read(indexFile).replace(/<body[^>]*>/i, function (match) {
             return match + html;
@@ -318,9 +315,7 @@ module.exports = function (grunt) {
         return value;
     }
 
-    function now() {
-        return new Date().getTime();
-    }
+    function now() { return new Date().getTime(); }
 
     return unittest;
 };
