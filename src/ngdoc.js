@@ -508,6 +508,11 @@ Doc.prototype = {
           self.target = match[2];
         } else if(atName == 'constructor') {
           self.constructor = true;
+        } else if(atName == 'author') {
+          if(self[atName] == null){
+            self[atName] = [];
+          }
+          self[atName].push(text);
         } else {
           self[atName] = text;
         }
