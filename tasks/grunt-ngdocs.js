@@ -116,7 +116,6 @@ module.exports = function (grunt) {
         
         reader.docs.forEach(function (doc) {
             if (doc.ngdoc == 'directive' && typeof doc.restrict.indexOf === "function" && doc.restrict.indexOf('E') != -1) {
-                console.log(doc);
                 var directive = {
                     id: doc.id,
                     description: doc.description,
