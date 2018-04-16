@@ -671,23 +671,37 @@ Doc.prototype = {
             dom.html(' <p><em>(default: ' + param.default + ')</em></p>');
           }
           if (param.properties) {
-//            dom.html('<table class="variables-matrix table table-bordered table-striped">');
-            dom.html('<table>');
-            dom.html('<thead>');
-            dom.html('<tr>');
-            dom.html('<th>Property</th>');
-            dom.html('<th>Type</th>');
-            dom.html('<th>Details</th>');
-            dom.html('</tr>');
-            dom.html('</thead>');
-            dom.html('<tbody>');
-            processParams(param.properties);
-            dom.html('</tbody>');
-            dom.html('</table>');
+            dom.html('<br/>Valid values:-');
+            dom.html('<ul>');
+
+            for (var pr = 0; pr < param.properties.length; pr++) {
+              var prop = param.properties[pr];
+              
+              dom.html('<li>');
+              dom.html('<div class="tk-rgrid-g">');
+
+              dom.html('<div class="tk-rgrid-u-md-3-24 tk-rgrid-u-1">');
+              dom.html('<strong>');
+              dom.html(prop.name);
+              dom.html('</strong>');
+              dom.html('</div>');
+
+              dom.html('<div class="tk-rgrid-u-md-21-24 tk-rgrid-u-1 property-description">');
+              dom.html(prop.description);
+              if (prop.default) {
+                dom.html(' <strong>(default)</strong>');
+              }
+              dom.html('</div>');
+
+              dom.html('</div>');
+              dom.html('</li>');
+            }
+
+            dom.html('</ul>');
           }
           dom.html('</td>');
           dom.html('</tr>');
-        };
+        }
       }
       dom.html('</tbody>');
       dom.html('</table>');
