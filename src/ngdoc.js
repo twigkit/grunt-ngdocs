@@ -1226,19 +1226,20 @@ function title(doc) {
     // makeTitle('Foo', 'directive', 'module', 'ng') ->
     //    Foo is a directive in module ng
     return function () {
-      if(type == 'directive'){
-        this.tag('code', colonDashCase(name));
-      } else {
-        this.tag('code', name);
-      }
-      this.tag('div', function () {
-        this.tag('span', {class: 'hint'}, function () {
-          if (type && component) {
-            this.text(type + ' in ' + componentType + ' ');
-            this.tag('code', component);
-          }
-        });
-      });
+      // title is now generated in index.tmp.html for the docs.
+      // if(type == 'directive'){
+      //   this.tag('code', colonDashCase(name));
+      // } else {
+      //   this.tag('code', name);
+      // }
+      // this.tag('div', function () {
+      //   this.tag('span', {class: 'hint'}, function () {
+      //     if (type && component) {
+      //       this.text(type + ' in ' + componentType + ' ');
+      //       this.tag('code', component);
+      //     }
+      //   });
+      // });
     };
   };
 
